@@ -39,6 +39,7 @@ I'm focusing on Fujinion lenses in the further description.
 2. Output the Tilta Protocol to support additional Motors for non full servo Lenses
 3. Accept the Tilta Protocol to accept local control for zoom and focus via Tilta demands.
 4. A-B Feature for setting a min/max for zoom and focus values to get finer local control
+5. Support for Blackmagic zoom and focus demands (if someone decides to reverse engeneer their protocol, some bird told me its just usb with a special flavor)
 
 
 ## Foreword
@@ -278,5 +279,6 @@ This research is done with a couple of very helpful tools:
 + https://www.linkedin.com/posts/levitezer_levitezer-b4-control-box-demonstration-activity-6963089260321099776-IrMd/
 
 + https://wiki.skaarhoj.com/books/device-core-articles/page/eth-b4-link-lens-control
+
 
 

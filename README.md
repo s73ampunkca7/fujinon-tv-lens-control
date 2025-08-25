@@ -187,18 +187,18 @@ The commands 0x53, 0x61 and 0x62 are repeadedly send by the camera to get the cu
 
 |Command Byte|Command name|Data Length|Response Data length|comment|
 |---|---|---|---|---|
-|0x01|Init|||
-|0x10|Manufacturer Name||||
-|0x11|Lens Name 1||||
-|0x12|Lens Name 2||||
-|0x13||||actually used for init by URSA Broadcast|
+|0x01|Init|0|0|same as Documented Spec|
+|0x10|Manufacturer Name|0|Observed 0x7, probably up to 0x0F|Probably same specs as 0x11|
+|0x11|Lens Name 1|0|0-0xF|Same as Documented|
+|0x12|Lens Name 2|0|0-0xF|Same as Documented|
+|0x13|Open iris Value|0|2|Same as Documented, actually used for init by URSA Broadcast|
 |0x71|Unknown|6|6|Lens responds with exact same command and data|
 |0x72|unknown|4|3|Lens responds with same command and data, minus the last databyte|
 |0x61|unknown|0|0xC|Repeadedly asked by camera, Must contain Iris, focus and Zoom values|
 |0x62|Unknown|0|3|Probably continuation of 0x61|
 |0x44|unknown|1|0|Probably sets some Switch|
 |0x42|See original Protocol|1|0|Probably same as in Original Protocol|
-|0x53|See original Protocol||||
+|0x53|See original Protocol|||Probably same as Original|
 |0x05|Unknown|0|0|Lens responds with same Comand and data. maybe some end of init signal|
 |0x23|Unknown|2|0|probably "Set IRIS Position"|
 
@@ -279,6 +279,7 @@ This research is done with a couple of very helpful tools:
 + https://www.linkedin.com/posts/levitezer_levitezer-b4-control-box-demonstration-activity-6963089260321099776-IrMd/
 
 + https://wiki.skaarhoj.com/books/device-core-articles/page/eth-b4-link-lens-control
+
 
 
 

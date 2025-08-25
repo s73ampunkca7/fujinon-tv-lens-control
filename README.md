@@ -23,7 +23,20 @@ I'm focusing on Fujinion lenses in the further description.
 
 2. Build a device that connects between any (full servo) ENG B4 Lens and the Camera to allow full digital Control over any Analog full servo Lens.
 
+## Planned Features
 
+### Core Features
+
+1. Output analog voltages via external plugs for Zoom and Focus to univerally control any broadcast lens
+2. Output analog voltage via 12pin Hirose to control Iris on any broadcast lens
+3. Feedback of Iris zoom and Focus Position via digital Protocol 
+4. Input for Analog Voltages to accept local control for Zoom and Focus control.
+5. Storage for Multiple Lens data files, Lens selectable via DIP Switch
+6. Option to upload additional Lens files via USB
+
+### Optional Features
+1. Output the known Fujinon L10 Protocol to Digitally control older Digipower lenses via the 10pin hirose Plug
+2. Output the Tilta Protocol to support additional Motors for non full servo Lenses
 
 ## Foreword
 During my Research i found the following:
@@ -262,3 +275,4 @@ This research is done with a couple of very helpful tools:
 + https://www.linkedin.com/posts/levitezer_levitezer-b4-control-box-demonstration-activity-6963089260321099776-IrMd/
 
 + https://wiki.skaarhoj.com/books/device-core-articles/page/eth-b4-link-lens-control
+

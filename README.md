@@ -194,7 +194,7 @@ The commands 0x53, 0x61 and 0x62 are repeadedly send by the camera to get the cu
 |0x13|Open iris Value|0|2|Same as Documented, actually used for init by URSA Broadcast|
 |0x71|Unknown|6|6|Lens responds with exact same command and data|
 |0x72|unknown|4|3|Lens responds with same command and data, minus the last databyte|
-|0x61|unknown|0|0xC|Repeadedly asked by camera, Must contain Iris, focus and Zoom values|
+|0x61|unknown|0|0xC|Repeadedly asked by camera, Must contain Iris, focus and Zoom values, and Probably some Switch positions|
 |0x62|Unknown|0|3|Probably continuation of 0x61|
 |0x44|unknown|1|0|Probably sets some Switch|
 |0x42|See original Protocol|1|0|Probably same as in Original Protocol|
@@ -279,6 +279,7 @@ This research is done with a couple of very helpful tools:
 + https://www.linkedin.com/posts/levitezer_levitezer-b4-control-box-demonstration-activity-6963089260321099776-IrMd/
 
 + https://wiki.skaarhoj.com/books/device-core-articles/page/eth-b4-link-lens-control
+
 
 
 

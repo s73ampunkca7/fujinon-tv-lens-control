@@ -237,7 +237,10 @@ void getMod(){
 }
 
 void setIris(){
-
+  txData[0]=0x00;
+  txData[1]=0x20;
+  sendData();
+  return;
 }
 
 void setZoom(){
@@ -276,15 +279,20 @@ void getSwitch(byte x){
 }
 
 void getMultipleData() {
-  txData[0] = 0x07;
+  txData[0] = 0x0C;
   txData[1] = rxData[0];
-  txData[2] = 0xAC;
-  txData[3] = 0xAB;
-  txData[4] = 0xAC;
-  txData[5] = 0xAB;
-  txData[6] = 0xAC;
-  txData[7] = 0xAB;
+  txData[2] = 0x00; //does nothing?
+  txData[3] = 0x00; //does nothing?
+  txData[4] = 0xFF; //iris
+  txData[5] = 0xFF; //iris
+  txData[6] = 0x00; //nothing
+  txData[7] = 0x00; //nothing
   txData[8] = 0x42;
+  txData[9] = 0x42;
+  txData[10] = 0x42;
+  txData[11] = 0x42;
+  txData[12] = 0x42;
+  txData[13] = 0x42;
   sendData();
   return;
 }

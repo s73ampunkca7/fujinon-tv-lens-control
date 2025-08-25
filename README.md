@@ -1,4 +1,4 @@
-﻿# fujinon-tv-lens-control
+﻿# fujinon-tv-lens-control (and probably other B4 Lenses too)
 
 > [!NOTE]
 > Discaimer:  
@@ -37,6 +37,9 @@ I'm focusing on Fujinion lenses in the further description.
 ### Optional Features
 1. Output the known Fujinon L10 Protocol to Digitally control older Digipower lenses via the 10pin hirose Plug
 2. Output the Tilta Protocol to support additional Motors for non full servo Lenses
+3. Accept the Tilta Protocol to accept local control for zoom and focus via Tilta demands.
+4. A-B Feature for setting a min/max for zoom and focus values to get finer local control
+
 
 ## Foreword
 During my Research i found the following:
@@ -275,4 +278,5 @@ This research is done with a couple of very helpful tools:
 + https://www.linkedin.com/posts/levitezer_levitezer-b4-control-box-demonstration-activity-6963089260321099776-IrMd/
 
 + https://wiki.skaarhoj.com/books/device-core-articles/page/eth-b4-link-lens-control
+
 

@@ -48,7 +48,7 @@ bool finished = false;
 
 
 void setup() {
-  if(debug){Serial1.begin(115200);}
+  Serial1.begin(115200);
   Serial.begin(78400);
   if (debug){Serial1.println("Hello world!");}
   if(debug){Serial1.println("Booting");}
@@ -208,15 +208,16 @@ void loop() {
     connected = sendConnect();
     ArduinoOTA.handle();
   }
-    if(!finished){
+    while(!finished){
         for(byte i = 0x02; i <= 0xFF; i++){
           commandByte++;
-            checkCommand();
-            for(byte k=0; k<=17;k++){
-              Serial1.print(response[k]);
-            }
-            Serial1.println("");
-            if(i=0xFF){finished=true;}
+          checkCommand();
+          if(response[1]==0xFE){finished=true;}
+          for(byte k=0; k<=response[0]+3;k++){
+            Serial1.print(" 0x");
+            Serial1.print(response[k], HEX);
+          }
+          Serial1.println("");
         }
     }
 }

@@ -43,6 +43,9 @@ byte txData[18];
 byte response[18];
 byte rxDataLength;
 byte txDataLength;
+byte commandByte =0x00;
+bool finished = false;
+
 
 void setup() {
   if(debug){Serial1.begin(115200);}
@@ -177,17 +180,16 @@ bool verifyCheckSum() {
     }
 }
 
-void checkCommand(int commandByte){
-    int _commandByte = commandByte;
+void checkCommand(){
     txData[0]=0x00;
-    txData[1]=_commandByte;
+    txData[1]= commandByte;
     sendData();
     getResponse();
     return;
 }
 void getResponse(){
     Serial.setTimeout(10);
-    Serial.readBytes(rxTemp, 18));
+    Serial.readBytes(response, 18);
 }
 
 bool sendConnect(){
@@ -204,15 +206,16 @@ void loop() {
   ArduinoOTA.handle();
   while(!connected){
     connected = sendConnect();
+    ArduinoOTA.handle();
   }
-    bool finished = false;
     if(!finished){
         for(byte i = 0x02; i <= 0xFF; i++){
-            checkCommand(i);
-            for(byte i=0; i < 18; i++){
-                Serial1.print(response[i]);
+          commandByte++;
+            checkCommand();
+            for(byte k=0; k<=17;k++){
+              Serial1.print(response[k]);
             }
-            delay(500);
+            Serial1.println("");
             if(i=0xFF){finished=true;}
         }
     }

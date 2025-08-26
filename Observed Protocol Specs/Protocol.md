@@ -121,6 +121,12 @@ To verify a Data Packet, all received bytes, including the Checksum get added up
 |0x71|UNKNOWN|Variable||variable|Responds with same data, some lenses dont respond with all bytes |Probably an extention of 0x70, like 0x61|
 |0x72|UNKNOWN|Variable||variable||Probably continuation of 0x71|
 
+### Suspected additional commands (Taken from various Fujinon L10 implementations)
+|Function Code|Function Name|Data Length|Data description|Response Data Length|Response Data Description|Additional Comment|
+|-|-|-|-|-|-|-|
+|0x40|Filter control|||||Probably not implemented for Broadcast lenses|
+|0x17|Serial number|||||untested|
+
 ### Detailed Command description
 
 #### 0x01 

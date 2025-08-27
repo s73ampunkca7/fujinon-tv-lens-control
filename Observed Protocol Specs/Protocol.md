@@ -43,7 +43,7 @@ The use of a Canon lens for aditional cross manufacturer Reference is planned.
 
 | Spec | Value | Comment |
 | -------- | -------- | -------- |
-| Boudrate | 78.400 Boud | Unusual value |
+| Boudrate | 78.400 Boud | Lenses are probably autobouding, Different cameras use different speeds. 78400 is observed with BMD Ursa cameras |
 |Data Length|8 Bit||
 |Stop Bits|1 Bit||
 |Parity|NONE||

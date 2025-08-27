@@ -7,14 +7,22 @@
 
 
 // Replace with your network credentials
-const char* ssid = "TP-Link_5B09";
-const char* password = "95271750";
+#ifndef STASSID
+#define STASSID "TP-Link_5B09"
+#define STAPSK "95271750"
+#endif
+
+const char* ssid = STASSID;
+const char* password = STAPSK;
 bool debug = false;
 byte rxData[18];
 byte txData[18];
 bool connected=false;
 bool finished = false;
 int filename = 0;
+char filenameArray[16];
+File dataDump;
+
 
 void setup() {
   Serial1.begin(115200);
@@ -27,10 +35,11 @@ void setup() {
     delay(5000);
     ESP.restart();
   }
-  if (!SD.begin()) {
+  if (!SD.begin(15)) {
     Serial1.println("initialization failed!");
     while (1);
   }
+  
   ArduinoOTA.onStart([]() {
     Serial1.println("Start");
   });
@@ -52,10 +61,38 @@ void setup() {
   Serial1.println("Ready");
   Serial1.print("IP address: ");
   Serial1.println(WiFi.localIP());
-  pinMode(13, OUTPUT);
-  pinMode(14, OUTPUT);
-  digitalWrite(13, HIGH); //Blinking== ERROR; ON == waiting for connection
-  digitalWrite(14, LOW); //Blinking == Dumping; ON == Finished
+  
+  pinMode(D0, OUTPUT);
+  pinMode(D2, OUTPUT);
+  
+  digitalWrite(D0, HIGH); //Blinking== ERROR; ON == waiting for connection
+  digitalWrite(D2, LOW); //Blinking == Dumping; ON == Finished
+  delay(250);
+  digitalWrite(D0, LOW); //Blinking== ERROR; ON == waiting for connection
+  digitalWrite(D2, HIGH); //Blinking == Dumping; ON == Finished
+  delay(250);
+  digitalWrite(D0, HIGH); //Blinking== ERROR; ON == waiting for connection
+  digitalWrite(D2, LOW); //Blinking == Dumping; ON == Finished
+  delay(250);
+  digitalWrite(D0, LOW); //Blinking== ERROR; ON == waiting for connection
+  digitalWrite(D2, HIGH); //Blinking == Dumping; ON == Finished
+  delay(250);
+  digitalWrite(D0, HIGH); //Blinking== ERROR; ON == waiting for connection
+  digitalWrite(D2, LOW); //Blinking == Dumping; ON == Finished
+  delay(250);
+  digitalWrite(D0, LOW); //Blinking== ERROR; ON == waiting for connection
+  digitalWrite(D2, HIGH); //Blinking == Dumping; ON == Finished
+  delay(250);
+  digitalWrite(D0, HIGH); //Blinking== ERROR; ON == waiting for connection
+  digitalWrite(D2, LOW); //Blinking == Dumping; ON == Finished
+  delay(250);
+  digitalWrite(D0, LOW); //Blinking== ERROR; ON == waiting for connection
+  digitalWrite(D2, HIGH); //Blinking == Dumping; ON == Finished
+  delay(250);
+  digitalWrite(D0, HIGH); //Blinking== ERROR; ON == waiting for connection
+  digitalWrite(D2, LOW); //Blinking == Dumping; ON == Finished
+  delay(250);
+  
 }
 
 byte calculateChecksum() {
@@ -120,26 +157,17 @@ bool verifyCheckSum() {
 void getResponse(){
     Serial.setTimeout(15);
     Serial.readBytes(rxData, 18);
+    return;
 }
 
-void safeResponse(){
-    if (dataDump) {
-      Serial.print("Writing to test.txt...");
-      for(byte i = 0; i <= rxData[0]+2; i++){
-        dataDump.print("0x");
-        dataDump.print(i, HEX);
-        dataDump.print("; ");
-      }
-      dataDump.println();
-    }
-}
+
 
 bool connect(){
     txData[0]=0x00;
     txData[1]=0x01;
     sendData();
     getResponse();
-    if(response[1]==0x01){
+    if(rxData[1]==0x01){
         return true;
     } else {return false;}
 }
@@ -147,26 +175,38 @@ bool connect(){
 void loop() {
   ArduinoOTA.handle();
   if(finished){
+    digitalWrite(D0, HIGH);
+    digitalWrite(D2, HIGH);
     return;
   }
   while(!connected){
     connected = connect();
     return;
   }
-  digitalWrite(13, LOW);
-  digitalWrite(14, HIGH);
-  while(SD.exists(filename)){
+  digitalWrite(D0, LOW);
+  digitalWrite(D2, HIGH);
+  while(SD.exists(filenameArray)){
     filename++;
+    itoa(filename, filenameArray, 10);
   }
-  dataDump = SD.open(filename, FILE_WRITE);
+  dataDump = SD.open(filenameArray, FILE_WRITE);
   for(int i = 0; i <=0xFF; i++){
-    if(millis()/1000%2){
-        digitalWrite(14, LOW);
-    } else {digitalWrite(14, HIGH);}
+    if(millis()/100%2){
+        digitalWrite(D2, LOW);
+        digitalWrite(D0, HIGH);
+    } else {digitalWrite(D2, HIGH);digitalWrite(D0, LOW);}
     txData[1] = i;
     sendData();
     getResponse();
-    safeResponse();
+    if (dataDump){
+      Serial1.print("Writing to file...");
+      for(byte i = 0; i <= rxData[0]+2; i++){
+        dataDump.print("0x");
+        dataDump.print(i, HEX);
+        dataDump.print("; ");
+      }
+    dataDump.println();
+    }
   }
   dataDump.close();
   finished = true;

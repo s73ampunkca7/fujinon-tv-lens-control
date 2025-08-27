@@ -17,6 +17,8 @@ If you searching around you find only some few contributions in a bunch of diffe
 
 I'm focusing on Fujinion lenses in the further description.
 
+## Contribiution
+If you want to help completing the Reverse engeneering of this Protocol and have a Lens that we haven't yet dumped the commands, please consider running the "Check Commands" Program and donating the results.
 
 ## Goal
 1. The goal of this Project is to reverse engeneer the Protocol used on the Hirose 12 Pin Plug between Camera and Lens.
@@ -140,6 +142,7 @@ This research is done with a couple of very helpful tools:
 + https://www.linkedin.com/posts/levitezer_levitezer-b4-control-box-demonstration-activity-6963089260321099776-IrMd/
 
 + https://wiki.skaarhoj.com/books/device-core-articles/page/eth-b4-link-lens-control
+
 
 
 

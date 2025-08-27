@@ -1,0 +1,174 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+#include <SD.h>
+#include <SPI.h>
+
+
+// Replace with your network credentials
+const char* ssid = "TP-Link_5B09";
+const char* password = "95271750";
+bool debug = false;
+byte rxData[18];
+byte txData[18];
+bool connected=false;
+bool finished = false;
+int filename = 0;
+
+void setup() {
+  Serial1.begin(115200);
+  Serial.begin(78400);
+  Serial1.println("Booting");
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  while (WiFi.waitForConnectResult() != WL_CONNECTED) {
+    Serial1.println("Connection Failed! Rebooting...");
+    delay(5000);
+    ESP.restart();
+  }
+  if (!SD.begin()) {
+    Serial1.println("initialization failed!");
+    while (1);
+  }
+  ArduinoOTA.onStart([]() {
+    Serial1.println("Start");
+  });
+  ArduinoOTA.onEnd([]() {
+    Serial1.println("\nEnd");
+  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    Serial1.printf("Progress: %u%%\r", (progress / (total / 100)));
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
+    Serial1.printf("Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) Serial1.println("Auth Failed");
+    else if (error == OTA_BEGIN_ERROR) Serial1.println("Begin Failed");
+    else if (error == OTA_CONNECT_ERROR) Serial1.println("Connect Failed");
+    else if (error == OTA_RECEIVE_ERROR) Serial1.println("Receive Failed");
+    else if (error == OTA_END_ERROR) Serial1.println("End Failed");
+  });
+  ArduinoOTA.begin();
+  Serial1.println("Ready");
+  Serial1.print("IP address: ");
+  Serial1.println(WiFi.localIP());
+  pinMode(13, OUTPUT);
+  pinMode(14, OUTPUT);
+  digitalWrite(13, HIGH); //Blinking== ERROR; ON == waiting for connection
+  digitalWrite(14, LOW); //Blinking == Dumping; ON == Finished
+}
+
+byte calculateChecksum() {
+  if (debug){Serial1.println("calculating tx Checksum");}
+  byte checksum = 0x00;
+  for(byte i=0; i <= txData[0] + 1; i++) {
+    checksum = checksum + txData[i];
+    if (debug){
+      Serial1.print("sum of Data: 0x");
+      Serial1.println(checksum, HEX);
+    }
+  }
+  checksum = 0x100 - checksum;
+  if (debug){
+    Serial1.print("Final Checksum: 0x");
+    Serial1.println(checksum, HEX);
+  }
+  return checksum;
+}
+
+void clearRxTx() {
+  if (debug){Serial1.println("clearing rx and tx data..");}
+  for(byte i=0; i<18; i++){
+    rxData[i]=0x00;
+    txData[i]=0x00;
+  }
+  return;
+}
+
+void sendData(){
+  if(debug){
+    Serial1.print("tx Data:");
+    for(byte i=0; i<=txData[0]+2;i++){
+      Serial.print(" 0x");
+      Serial1.print(txData[i], HEX);
+    }
+    Serial1.println("");
+    Serial1.println("sending raw Data...");
+  }
+  txData[txData[0]+2] = calculateChecksum();
+  for(byte i=0; i <= txData[0] +2; i++){
+    Serial.write(txData[i]);
+  }
+  clearRxTx();
+  return;
+}
+
+bool verifyCheckSum() {
+  if (debug){Serial1.println("verifying Checksum...");}
+  byte checksum;
+  for(byte i=0; i <= rxData[0] + 2; i++) {
+    checksum = checksum + rxData[i];
+  }
+  if(checksum == 0) {
+    return true;
+  }
+  else {
+    return false;
+    }
+}
+
+void getResponse(){
+    Serial.setTimeout(15);
+    Serial.readBytes(rxData, 18);
+}
+
+void safeResponse(){
+    if (dataDump) {
+      Serial.print("Writing to test.txt...");
+      for(byte i = 0; i <= rxData[0]+2; i++){
+        dataDump.print("0x");
+        dataDump.print(i, HEX);
+        dataDump.print("; ");
+      }
+      dataDump.println();
+    }
+}
+
+bool connect(){
+    txData[0]=0x00;
+    txData[1]=0x01;
+    sendData();
+    getResponse();
+    if(response[1]==0x01){
+        return true;
+    } else {return false;}
+}
+
+void loop() {
+  ArduinoOTA.handle();
+  if(finished){
+    return;
+  }
+  while(!connected){
+    connected = connect();
+    return;
+  }
+  digitalWrite(13, LOW);
+  digitalWrite(14, HIGH);
+  while(SD.exists(filename)){
+    filename++;
+  }
+  dataDump = SD.open(filename, FILE_WRITE);
+  for(int i = 0; i <=0xFF; i++){
+    if(millis()/1000%2){
+        digitalWrite(14, LOW);
+    } else {digitalWrite(14, HIGH);}
+    txData[1] = i;
+    sendData();
+    getResponse();
+    safeResponse();
+  }
+  dataDump.close();
+  finished = true;
+  connected = false;
+}

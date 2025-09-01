@@ -148,7 +148,7 @@ To verify a Data Packet, all received bytes, including the Checksum get added up
 |0x54|Switch 4 position||||||
 |0x55|Switch 5 position||||||
 |0x56|Switch 6 position||||||
-|0x5F|UNKNOWN|||||Lens responds with one byte of unknown data|
+|0x5F|Switch 6 Position|0||1||Analog/Digital control switch|
 |0x60|Multiple data|0|Request multiple data thats set with 0x70|0x01-0x07|Multiple data response||
 |0x61|UNKNOWN|0||variable||Probably continuation of 0x60?? Repeadedly asked by camera, Must contain Iris, focus and Zoom values, and Probably some Switch positions|
 |0x62|UNKNOWN|0||variable||Continuation of 0x61|

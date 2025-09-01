@@ -118,6 +118,8 @@ To verify a Data Packet, all received bytes, including the Checksum get added up
 |0x21|Zoom Control||||||
 |0x22|Focus Control||||||
 |0x23|UNKNOWN|2||0||Probably same as 0x20 in the original L10 Protocol, used to set Iris value|
+|0x24|Absolute zoom value||||||
+|0x25|absolute focus value||||||
 |0x26|Zoom Speed Control||||||
 |0x27|Focus Speed Control||||||
 |0x2D|F.f. position control|||||Electronic Backfocus adjustment|
@@ -127,8 +129,10 @@ To verify a Data Packet, all received bytes, including the Checksum get added up
 |0x33|UNKNOWN||||||
 |0x34|UNKNOWN||||||
 |0x35|UNKNOWN|||||33, 36, 37 change with iris; 34,36 change with zoom; 35 changes with focus|
-|0x36|UNKNOWN||||||
+|0x36|Exit pupil position||||||
 |0x37|UNKNOWN||||||
+|0x3B|Zoom Speed feedback|||||0x0000 is max speed towards wide, 0x8000 is stopped, 0xFFFF is max speed towards tele|
+|0x3C|focus Speed feedback|||||0x0000 is max speed towards macro, 0x8000 is stopped, 0xFFFF is max speed towards infinity|
 |0x3D|UNKNOWN|||||Lens responds with one byte of unknown data|
 |0x40|Switch 0 control||||||
 |0x41|Switch 1 control||||||
@@ -276,7 +280,7 @@ Switch 4 Control/Position
 
 #### 0x45, 0x55
 Switch 5 Control/Position
-0x45 to Set the switch Position
+0x45 does not exist, read only
 0x55 to request the current position
 
 |Bit|description|Value|
@@ -286,9 +290,9 @@ Switch 5 Control/Position
 |Bit5|||
 |Bit4|||
 |Bit3|||
-|Bit2|||
-|Bit1|||
-|Bit0|||
+|Bit2|Iris absolute value control enable|0:OFF, 1:ON|
+|Bit1|zoom absolute value control enable|0:OFF, 1:ON|
+|Bit0|focus absolute value control enable|0:OFF, 1:ON|
 
 #### 0x46, 0x56
 Switch 6 Control/Position
@@ -306,14 +310,29 @@ Switch 6 Control/Position
 |Bit1|Undefined||
 |Bit0|Sabalizer on/off|0:ON, 1:OFF|
 
-#### 0x60-0x62
-Request multiple Data
-Request for multiple Data bytes, set in 0x70-0x72
-might go further than 0x62, needs to be tested or observed
+#### 0x4F, 0x5F
+Serial/parallel switch, Paralel probably means the analog signals on the 12pin plug
 
-####0x70-0x72
+|Bit|description|Value|
+|-|-|-|
+|Bit7|||
+|Bit6|||
+|Bit5|||
+|Bit4|reserved|zoom control for 1/2" 14Pin interface|
+|Bit3|reserved|focus control for 1/2" 14pin interface|
+|Bit2|iris auto/manu|0:serial, 1:Parallel|
+|Bit1|iris control|0:serial, 1:Parallel|
+|Bit0|Forced iris Servo|0:serial, 1:Parallel|
+
+
+#### 0x60-0x63
+Request multiple Data
+Request for multiple Data bytes, set in 0x70-0x73
+up to 0x63 according to Sony
+
+#### 0x70-0x73
 The host can send up to 4(according to Specification) or 5(Observed by Ursa Broadcast) data request commands as data.
+According to sony, as many command bytes as wanted can be set, as long as their response length fits within 15 byte
 The lens responds only with command bytes that are available.
 The host can request the data set with this command by sending 0x60.
-might go further than 0x72, needs to be tested or observed
-
+up to 0x73 according to sony

@@ -154,11 +154,10 @@ To verify a Data Packet, all received bytes, including the Checksum get added up
 |0x90|F.f. Position|||||get backfocus position (if electronically controllable)|
 |0xAX-0xBX|PF Settings (Won't investigate further for now)||||||
 
-### Suspected additional commands (Taken from various Fujinon L10 implementations)
+### Suspected additional commands (Taken from various Fujinon L10/C10 implementations)
 |Function Code|Function Name|Data Length|Data description|Response Data Length|Response Data Description|Additional Comment|
 |-|-|-|-|-|-|-|
-|0x40|Filter control|||||Probably not implemented for Broadcast lenses|
-|0x17|Serial number|||||untested|
+|0x40|Filter control|||||Can't test, no lens with filters available. Might only be available in CCTV Lenses|
 
 ### Detailed Command description
 

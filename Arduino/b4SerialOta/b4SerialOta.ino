@@ -183,16 +183,7 @@ void lensConnect(){
   return;
 }
 
-void getManName(){
-  if (debug){Serial1.println("Building response for Manufacturer Name");}
-  txData[0] = 0x0F;
-  txData[1] = 0x10;
-  for(byte i = 2; i <= 17; i++) {
-    txData[i]=lensData.manufacturer[i-2];
-  }
-  sendData();
-  return;
-}
+
 
 void getLensName(byte x) {
   if (debug){Serial1.println("Building response for Lens Name");}

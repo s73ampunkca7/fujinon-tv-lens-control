@@ -20,13 +20,13 @@ byte txData[18];
 bool connected=false;
 bool finished = false;
 int filename = 0;
-char filenameArray[16];
+char filenameArray[12];
 File dataDump;
 
 
 void setup() {
   Serial1.begin(115200);
-  Serial.begin(78400);
+  Serial.begin(76800);
   Serial1.println("Booting");
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
@@ -64,7 +64,9 @@ void setup() {
   
   pinMode(D0, OUTPUT);
   pinMode(D2, OUTPUT);
-  
+  for(int i=0; i<=7; i++){
+    filenameArray[i]=(char)random(65, 90);
+  }
   digitalWrite(D0, HIGH); //Blinking== ERROR; ON == waiting for connection
   digitalWrite(D2, LOW); //Blinking == Dumping; ON == Finished
   delay(250);
@@ -186,9 +188,15 @@ void loop() {
   digitalWrite(D0, LOW);
   digitalWrite(D2, HIGH);
   while(SD.exists(filenameArray)){
-    filename++;
-    itoa(filename, filenameArray, 10);
+    for(int i=0; i<=7; i++){
+      filenameArray[i]=(char)random(65, 90);
+    }
   }
+  filenameArray[0] = (char) 47;
+  filenameArray[8] = (char) 46;
+  filenameArray[9] = (char) 84;
+  filenameArray[10] = (char) 88;
+  filenameArray[11] = (char) 84;
   dataDump = SD.open(filenameArray, FILE_WRITE);
   for(int i = 0; i <=0xFF; i++){
     if(millis()/100%2){
@@ -198,12 +206,17 @@ void loop() {
     txData[1] = i;
     sendData();
     getResponse();
-    if (dataDump){
+    if (true){
       Serial1.print("Writing to file...");
       for(byte i = 0; i <= rxData[0]+2; i++){
         dataDump.print("0x");
-        dataDump.print(i, HEX);
+        dataDump.print(rxData[i], HEX);
         dataDump.print("; ");
+      }
+      if(rxData[1]==0x11){
+        for(byte j = 2; j <= rxData[0]+2; j++){
+          dataDump.print((char)rxData[j]);
+        }
       }
     dataDump.println();
     }

@@ -43,7 +43,7 @@ The use of a Canon lens for aditional cross manufacturer Reference is planned.
 
 | Spec | Value | Comment |
 | -------- | -------- | -------- |
-| Boudrate | 78.400 Boud | Lenses are probably autobouding, Different cameras use different speeds. 78400 is observed with BMD Ursa cameras |
+| Boudrate | 78.400 Boud | Lenses are probably autobouding, Different cameras use different speeds. 78400 is observed with BMD Ursa cameras. Sony seems to be using 76800 baud |
 |Data Length|8 Bit||
 |Stop Bits|1 Bit||
 |Parity|NONE||
@@ -110,22 +110,58 @@ To verify a Data Packet, all received bytes, including the Checksum get added up
 |0x11|Lens name request|0x00||0x00-0x0F|Lens name|
 |0x12|2nd Lens name request|0x00||0x00-0x0F|Only gets requested if response data length of 0x11 is 0x0F|
 |0x13|Open Fno|0x00|request for open Fno|0x02|Open Fno|Ursa Broadcast (G1) Sends this command first instead of 0x01|
+|0x14|Tele-end Focal length||||||
+|0x15|wide-end focal length||||||
+|0x16|MOD|||||Minimum Object Distance|
+|0x17|Serial Number||||||
+|0x20|Iris Control||||||
+|0x21|Zoom Control||||||
+|0x22|Focus Control||||||
 |0x23|UNKNOWN|2||0||Probably same as 0x20 in the original L10 Protocol, used to set Iris value|
-|0x42|Switch2 Control|1|Set Switch Values|0||Probably same as L10 Protocol|
-|0x44|Switch4 Control|1|Set Switch Values|0||Probably same as L10 Protocol|
-|0x53|Switch3 request|0|Get Switch Values|1||Probably same as L10 Protocol|
+|0x24|Absolute zoom value||||||
+|0x25|absolute focus value||||||
+|0x26|Zoom Speed Control||||||
+|0x27|Focus Speed Control||||||
+|0x2D|F.f. position control|||||Electronic Backfocus adjustment|
+|0x30|Iris position||||||
+|0x31|Zoom Position||||||
+|0x32|Focus Position||||||
+|0x33|UNKNOWN||||||
+|0x34|UNKNOWN||||||
+|0x35|UNKNOWN|||||33, 36, 37 change with iris; 34,36 change with zoom; 35 changes with focus|
+|0x36|Exit pupil position||||||
+|0x37|UNKNOWN||||||
+|0x3B|Zoom Speed feedback|||||0x0000 is max speed towards wide, 0x8000 is stopped, 0xFFFF is max speed towards tele|
+|0x3C|focus Speed feedback|||||0x0000 is max speed towards macro, 0x8000 is stopped, 0xFFFF is max speed towards infinity|
+|0x3D|UNKNOWN|||||Lens responds with one byte of unknown data|
+|0x40|Switch 0 control||||||
+|0x41|Switch 1 control||||||
+|0x42|Switch 2 Control|1|Set Switch Values|0||Probably same as L10 Protocol|
+|0x43|Switch 3 control||||||
+|0x44|Switch 4 Control|1|Set Switch Values|0||Probably same as L10 Protocol|
+|0x45|Switch 5 control||||||
+|0x46|Switch 6 control||||||
+|0x50|Switch 0 position||||||
+|0x51|Switch 0 position||||||
+|0x52|Switch 0 position||||||
+|0x53|Switch 3 position|0|Get Switch Values|1||Probably same as L10 Protocol|
+|0x54|Switch 4 position||||||
+|0x55|Switch 5 position||||||
+|0x56|Switch 6 position||||||
+|0x5F|Switch 6 Position|0||1||Analog/Digital control switch|
 |0x60|Multiple data|0|Request multiple data thats set with 0x70|0x01-0x07|Multiple data response||
 |0x61|UNKNOWN|0||variable||Probably continuation of 0x60?? Repeadedly asked by camera, Must contain Iris, focus and Zoom values, and Probably some Switch positions|
 |0x62|UNKNOWN|0||variable||Continuation of 0x61|
 |0x70|Set Multiple Data|0x01-0x04|Set data to be requested with 0x60|0x01-0x04|Respond with available data types||
 |0x71|UNKNOWN|Variable||variable|Responds with same data, some lenses dont respond with all bytes |Probably an extention of 0x70, like 0x61|
 |0x72|UNKNOWN|Variable||variable||Probably continuation of 0x71|
+|0x90|F.f. Position|||||get backfocus position (if electronically controllable)|
+|0xAX-0xBX|PF Settings (Won't investigate further for now)||||||
 
-### Suspected additional commands (Taken from various Fujinon L10 implementations)
+### Suspected additional commands (Taken from various Fujinon L10/C10 implementations)
 |Function Code|Function Name|Data Length|Data description|Response Data Length|Response Data Description|Additional Comment|
 |-|-|-|-|-|-|-|
-|0x40|Filter control|||||Probably not implemented for Broadcast lenses|
-|0x17|Serial number|||||untested|
+|0x40|Filter control|||||Can't test, no lens with filters available. Might only be available in CCTV Lenses|
 
 ### Detailed Command description
 
@@ -133,8 +169,7 @@ To verify a Data Packet, all received bytes, including the Checksum get added up
 See L10 Protocol
 
 #### 0x05
-Currently unknown.
-Gets send by the Camera only once near the beginning of the communication after requesting some initial Data. Maybe some sort of end of Init signal. Lens responds with empty ACK.
+Send by the Camera only once near the beginning of the communication after requesting some initial Data. Maybe some sort of end of Init signal. Lens responds with empty ACK.
 
 #### 0x10
 Request for Manufacturer Name.
@@ -155,4 +190,149 @@ $Data=0x10000*1-Log_2(Fno)/8$
 Distance data Format.
 Not yet observed, Probably same as L10 Protocol
 
+#### 0x17
+Lens Serial number, ASCII Encoded
+
 #### 0x20, 0x21, 0x22
+
+#### 0x40, 0x50
+Switch 0 Control/Position
+0x40 to Set the switch Position
+0x50 to request the current position
+
+|Bit|description|Value|
+|-|-|-|
+|Bit7|Ret 8|0:ON, 1:OFF|
+|Bit6|Ret 7|0:ON, 1:OFF|
+|Bit5|Ret 6|0:ON, 1:OFF|
+|Bit4|Ret 5|0:ON, 1:OFF|
+|Bit3|Ret 4|0:ON, 1:OFF|
+|Bit2|Ret 3|0:ON, 1:OFF|
+|Bit1|Ret 2|0:ON, 1:OFF|
+|Bit0|Ret 1|0:ON, 1:OFF|
+
+#### 0x41, 0x51
+Switch 1 Control/Position
+0x41 to Set the switch Position
+0x51 to request the current position
+
+|Bit|description|Value|
+|-|-|-|
+|Bit7|||
+|Bit6|||
+|Bit5|||
+|Bit4|VTR Start/Stop|0:ON, 1:OFF|
+|Bit3|Reserved||
+|Bit2|Reserved||
+|Bit1|Prod Mic|0:ON, 1:OFF|
+|Bit0|ENG Mic|0:ON, 1:OFF|
+
+#### 0x42, 0x52
+Switch 2 Control/Position
+0x42 to Set the switch Position
+0x52 to request the current position
+
+|Bit|description|Value|
+|-|-|-|
+|Bit7|Undefined|1|
+|Bit6|Undefined|1|
+|Bit5|Forced Iris Servo|0:OFF, 1:ON|
+|Bit4|Iris Auto/remote|0:auto, 1: remote|
+|Bit3|Undefined|1|
+|Bit2|Undefined|1|
+|Bit1|Undefined|1|
+|Bit0|Undefined|1|
+
+#### 0x43, 0x53
+Switch 3 Control/Position
+0x43 to Set the switch Position
+0x53 to request the current position
+
+|Bit|description|Value|
+|-|-|-|
+|Bit7|Undefined|1|
+|Bit6|Undefined|1|
+|Bit5|Undefined|1|
+|Bit4|Undefined|1|
+|Bit3|Extender magnification|see Extender Table|
+|Bit2|Extender magnification|see Extender Table|
+|Bit1|Extender magnification|see Extender Table|
+|Bit0|Extender magnification|see Extender Table|
+
+>[!IMPORTANT]
+>TODO: Extender Table
+
+#### 0x44, 0x54
+Switch 4 Control/Position
+0x44 to Set the switch Position
+0x54 to request the current position
+
+|Bit|description|Value|
+|-|-|-|
+|Bit7|Undefined||
+|Bit6|Undefined||
+|Bit5|Undefined||
+|Bit4|F.f. Host/local|0:Host, 1:Local|
+|Bit3|Undefined||
+|Bit2|Iris host/camera|0:Host, 1:Camera|
+|Bit1|zoom host/local|0:Host, 1:Local|
+|Bit0|focus host/local|0:Host, 1:Local|
+
+#### 0x45, 0x55
+Switch 5 Control/Position
+0x45 does not exist, read only
+0x55 to request the current position
+
+|Bit|description|Value|
+|-|-|-|
+|Bit7|||
+|Bit6|||
+|Bit5|||
+|Bit4|||
+|Bit3|||
+|Bit2|Iris absolute value control enable|0:OFF, 1:ON|
+|Bit1|zoom absolute value control enable|0:OFF, 1:ON|
+|Bit0|focus absolute value control enable|0:OFF, 1:ON|
+
+#### 0x46, 0x56
+Switch 6 Control/Position
+0x46 to Set the switch Position
+0x56 to request the current position
+
+|Bit|description|Value|
+|-|-|-|
+|Bit7|Undefined||
+|Bit6|Undefined||
+|Bit5|Undefined||
+|Bit4|Undefined||
+|Bit3|Undefined||
+|Bit2|Undefined||
+|Bit1|Undefined||
+|Bit0|Sabalizer on/off|0:ON, 1:OFF|
+
+#### 0x4F, 0x5F
+Serial/parallel switch, Paralel probably means the analog signals on the 12pin plug
+
+|Bit|description|Value|
+|-|-|-|
+|Bit7|||
+|Bit6|||
+|Bit5|||
+|Bit4|reserved|zoom control for 1/2" 14Pin interface|
+|Bit3|reserved|focus control for 1/2" 14pin interface|
+|Bit2|iris auto/manu|0:serial, 1:Parallel|
+|Bit1|iris control|0:serial, 1:Parallel|
+|Bit0|Forced iris Servo|0:serial, 1:Parallel|
+
+
+#### 0x60-0x63
+Request multiple Data
+Request for multiple Data bytes, set in 0x70-0x73
+up to 0x63 according to Sony
+
+#### 0x70-0x73
+The host can send up to 4(according to Specification) or 5(Observed by Ursa Broadcast) data request commands as data.
+According to sony, as many command bytes as wanted can be set, as long as their response length fits within 15 byte
+The lens responds only with command bytes that are available.
+The host can request the data set with this command by sending 0x60.
+up to 0x73 according to sony

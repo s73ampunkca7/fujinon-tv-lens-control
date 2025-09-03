@@ -43,7 +43,7 @@ The use of a Canon lens for aditional cross manufacturer Reference is planned.
 
 | Spec | Value | Comment |
 | -------- | -------- | -------- |
-| Boudrate | 78.400 Boud | Lenses are probably autobouding, Different cameras use different speeds. 78400 is observed with BMD Ursa cameras. Sony seems to be using 76800 baud |
+| Boudrate | ~78.400 Baud~ 76800 Baud| Lenses are ~probably~ not autobouding. Sony seems to be using 76800 baud. Blackmagics Timing is off (measured 78400Baud, close enough to not cause issues) |
 |Data Length|8 Bit||
 |Stop Bits|1 Bit||
 |Parity|NONE||
@@ -59,9 +59,12 @@ All Data Packages follow the same Structure
 |-|-|-|-|
 |1 byte|1 byte|0-15 byte|1 byte|
 
-### Data Length
+### Data Length and second Commandset
 
 The Data length describes how many bytes are expected for Data. It ranges from 0x00 to 0x0F for 0 to 15 bytes.
+
+The data length byte is also used to access a second, currently undocumented command set.
+If the upper, for the datalength unused, nibble is set to 0xF, the system is in the "User command for lens manufacturer" commandset.
 
 ### Command
 
@@ -117,7 +120,7 @@ To verify a Data Packet, all received bytes, including the Checksum get added up
 |0x20|Iris Control||||||
 |0x21|Zoom Control||||||
 |0x22|Focus Control||||||
-|0x23|UNKNOWN|2||0||Probably same as 0x20 in the original L10 Protocol, used to set Iris value|
+|0x23|UNKNOWN|2||0||Probably Absolute Iris, used by URSA to set iris|
 |0x24|Absolute zoom value||||||
 |0x25|absolute focus value||||||
 |0x26|Zoom Speed Control||||||
@@ -136,15 +139,15 @@ To verify a Data Packet, all received bytes, including the Checksum get added up
 |0x3D|UNKNOWN|||||Lens responds with one byte of unknown data|
 |0x40|Switch 0 control||||||
 |0x41|Switch 1 control||||||
-|0x42|Switch 2 Control|1|Set Switch Values|0||Probably same as L10 Protocol|
+|0x42|Switch 2 Control|1|Set Switch Values|0|||
 |0x43|Switch 3 control||||||
-|0x44|Switch 4 Control|1|Set Switch Values|0||Probably same as L10 Protocol|
+|0x44|Switch 4 Control|1|Set Switch Values|0|||
 |0x45|Switch 5 control||||||
 |0x46|Switch 6 control||||||
 |0x50|Switch 0 position||||||
 |0x51|Switch 0 position||||||
 |0x52|Switch 0 position||||||
-|0x53|Switch 3 position|0|Get Switch Values|1||Probably same as L10 Protocol|
+|0x53|Switch 3 position|0|Get Switch Values|1|||
 |0x54|Switch 4 position||||||
 |0x55|Switch 5 position||||||
 |0x56|Switch 6 position||||||

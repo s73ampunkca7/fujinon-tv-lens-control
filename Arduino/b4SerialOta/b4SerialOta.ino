@@ -1,15 +1,3 @@
-#include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
-#include <WiFiUdp.h>
-#include <ArduinoOTA.h>
-
-#ifndef STASSID
-#define STASSID "TP-Link_5B09"
-#define STAPSK "95271750"
-#endif
-
-const char* ssid = STASSID;
-const char* password = STAPSK;
 bool debug = false;
 
 struct lens {
@@ -21,18 +9,37 @@ struct lens {
   byte minAparture[2];
   bool extenderAvailable;
   byte MOD[2];
+  byte serial[15];
+  int32_t irisTarget;
+  int32_t irisFeedback;
+  int32_t zoomTarget;
+  int32_t zoomFeedback;
+  int32_t focusTarget;
+  int32_t focusFeedback;
+  bool extFeedback;
+  bool tally;
+  bool iso;
+  bool call;
+  bool preview;
+  bool retFeedback;
+  bool vtrFeedback;
+  bool auxFeedback;
+  bool prodFeedback;
+  bool engFeedback;
+  bool tbdFeedback;
 };
 
 
 lens lensData = {
-  {0x44, 0x41, 0x4D, 0x50, 0x46, 0x4B, 0x41, 0x44, 0x53, 0x45, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0x42, 0x49, 0x47, 0x20, 0x44, 0x49, 0x43, 0x4B, 0x4B, 0x4B, 0x4B, 0x4B, 0x4B, 0x4B, 0x4B},
-  {0x2E, 0x2C, 0x2D, 0x28, 0x29, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0xB3, 0x84},
-  {0xF1, 0xF4},
-  {0xf7, 0xe2},
-  true,
-  {0x00, 0xFF},
+  {0x43, 0x41, 0x4E, 0x4F, 0x4E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, //manufacuturer
+  {0x4A, 0x35, 0x35, 0x78, 0x39, 0x20, 0x53, 0x55, 0x50, 0x45, 0x52, 0x00, 0x00, 0x00, 0x00}, //Lens Name 1
+  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, //lens Name 2
+  {0xB3, 0x84}, //min Focal Length
+  {0xD1, 0xF4}, //max Focal Length
+  {0xf0, 0x78}, //min F stop
+  true, //extender?
+  {0xD2, 0x58}, //Minimum Object Distance
+  {0x32, 0x31, 0x39, 0x30, 0x32, 0x41, 0x51, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, //S/N
 };
 
 //available lenses:
@@ -183,7 +190,16 @@ void lensConnect(){
   return;
 }
 
-
+void getManName(){
+  if (debug){Serial1.println("Building response for Manufacturer Name");}
+  txData[0] = 0x0F;
+  txData[1]=0x10;
+  for(byte i = 2; i <= 17; i++) {
+    txData[i]=lensData.manufacturer[i-2];
+  }
+  sendData();
+  return;
+}
 
 void getLensName(byte x) {
   if (debug){Serial1.println("Building response for Lens Name");}
@@ -216,15 +232,48 @@ void getOpenFno(){
 }
 
 void getTeleFocalLength(){
-  //TODO
+  if (debug){Serial1.println("Building response for Tele focal length");}
+  txData[0]=0x02;
+  txData[1]=0x14;
+  for(byte i = 2; i <= 3; i++) {
+    txData[i]=lensData.maxFocalLength[i-2];
+  }
+  sendData();
+  return;
 }
 
-void getWideFocalLength() {
-
+void getWideFocalLength(){
+  if (debug){Serial1.println("Building response for wide focal length");}
+  txData[0]=0x02;
+  txData[1]=0x15;
+  for(byte i = 2; i <= 3; i++) {
+    txData[i]=lensData.minFocalLength[i-2];
+  }
+  sendData();
+  return;
 }
+
 
 void getMod(){
+  if (debug){Serial1.println("Building response for MOD");}
+  txData[0]=0x02;
+  txData[1]=0x16;
+  for(byte i = 2; i <= 3; i++) {
+    txData[i]=lensData.MOD[i-2];
+  }
+  sendData();
+  return;
+}
 
+void getSerial(){
+  if (debug){Serial1.println("Building response for Serialnumber");}
+  txData[0] = 0x0F;
+  txData[1]=0x17;
+  for(byte i = 2; i <= 17; i++) {
+    txData[i]=lensData.serial[i-2];
+  }
+  sendData();
+  return;
 }
 
 void setIris(){
@@ -342,6 +391,9 @@ void loop() {
       case 0x16:
         getMod();
         break;
+      case 0x17:
+        getSerial();
+        break;
       case 0x20:
         setIris();
         break;
@@ -350,6 +402,15 @@ void loop() {
         break;
       case 0x22:
         setFocus();
+        break;
+      case 0x23:
+        setIrisAbs();
+        break;
+      case 0x24:
+        setZoomAbs();
+        break;
+      case 0x25:
+        setFocusAbs();
         break;
       case 0x30:
         getIris();
